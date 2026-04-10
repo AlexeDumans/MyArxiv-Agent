@@ -33,10 +33,10 @@ fetch:
     max_results: 150
 
     http:
-      timeout_seconds: 30
-      retries: 3
-      backoff_seconds: 2
-      min_delay_seconds: 3
+      timeout_seconds: 60
+      retries: 5
+      backoff_seconds: 10
+      min_delay_seconds: 10
       user_agent: "MyArxiv-Agent/1.0 (+https://github.com/)"
 
   # 论文检索参数配置

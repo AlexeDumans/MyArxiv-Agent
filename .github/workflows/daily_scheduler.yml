@@ -2,8 +2,8 @@ name: Daily Arxiv Fetcher
 
 on:
   schedule:
-    # 每天 UTC 0:30 (北京时间 8:30) 运行
-    - cron: '30 0 * * *'
+    # 改为 UTC 3:17 (北京时间 11:17)，避开 0:30 的流量高峰
+    - cron: '17 3 * * *'
   workflow_dispatch: # 允许手动触发
 
 permissions:
