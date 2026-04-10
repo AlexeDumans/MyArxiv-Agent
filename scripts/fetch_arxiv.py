@@ -19,6 +19,7 @@ _CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 
 def _read_text_if_exists(path: str) -> str:
+    """尝试读取文件；如果文件不存在或读取失败，则返回空字符串。"""
     try:
         if path and os.path.exists(path):
             with open(path, "r", encoding="utf-8") as f:
@@ -29,7 +30,11 @@ def _read_text_if_exists(path: str) -> str:
 
 
 def _scan_arxiv_versions_from_text(content: str):
-    """Scan markdown text and return (links_set, versions_by_base_id)."""
+    """
+    扫描输入的 markdown 文本，并返回:
+      1. links_set: 文本中包含的所有链接的集合
+      2. versions_by_base_id: 字典形式的 arXiv ID 与最高版本号的映射关系（例如 {"2103.00020": 2}）
+    """
     links = set()
     versions = {}
     if not content:
@@ -57,11 +62,11 @@ def _scan_arxiv_versions_from_text(content: str):
 
 
 def _scan_archived_index(config):
-    """Build a dedupe index from already-archived metadata.
-
-    When a paper is archived, it is appended into Papers/*/List.md and mirrored
-    into Contents.md. If we only dedupe against Inbox.md, archived papers can be
-    re-added on the next fetch.
+    """
+    基于已经归档在库中的论文数据，建立本地已经抓取过的论文索引库以供去重机制使用。
+    
+    当一篇论文被归档后，它会被追加进入 Papers/*/List.md 并且将其状态同步给 Contents.md。
+    如果我们仅根据 Inbox.md 进行排重，那么已经归档的论文将被误报为“未阅读”，从而被再次拉取。 
     """
 
     contents_rel = get_config_value(config, "paths.contents", "Contents.md")
@@ -103,16 +108,21 @@ def _scan_archived_index(config):
 
 
 def _strip_control_chars(text: str) -> str:
+    """滤除所有的不可见 ASCII 控制字符，以免在写入 markdown 时出错。"""
     return _CONTROL_CHARS_RE.sub("", text or "")
 
 
 def _maybe_clean_text(config, text: str) -> str:
+    """根据配置文件中对 safety 相关的设定，判断是否去除危险/非法字符。"""
     if bool(get_config_value(config, "safety.strip_control_chars", True)):
         return _strip_control_chars(text)
     return text
 
 
 def _parse_arxiv_id_and_version(arxiv_id_with_optional_version: str):
+    """
+    从附带版本号的 arXiv ID 字符串 (如 '2103.00020v2') 中解析出核心 ID 和版本数字。
+    """
     raw = (arxiv_id_with_optional_version or "").strip()
     if not raw:
         return None, None
@@ -133,6 +143,7 @@ def _parse_arxiv_id_and_version(arxiv_id_with_optional_version: str):
 
 
 def _extract_abs_link(entry) -> Optional[str]:
+    """尝试从 API 抓取回来的 feed entry 数据结构中获取文章在 arxiv 上面的绝对链接。"""
     try:
         for l in getattr(entry, "links", []) or []:
             if getattr(l, "rel", None) == "alternate" and getattr(l, "href", None):
@@ -143,6 +154,7 @@ def _extract_abs_link(entry) -> Optional[str]:
 
 
 def _extract_arxiv_id_from_url(url: str):
+    """反向解析: 从 URL 提取出 arXiv ID 以及 版本号。"""
     if not url:
         return None, None
     m = _ARXIV_ABS_RE.search(url)
@@ -152,13 +164,12 @@ def _extract_arxiv_id_from_url(url: str):
 
 
 def _normalize_id_list(value: Any) -> List[str]:
-    """Normalize config `fetch.query.id_list` into a list of arXiv ids.
-
-    Supports:
-    - [] / list
-    - comma-separated string
-
-    Items may include versions (e.g. "cond-mat/0207270v1").
+    """
+    规范化获取到的配置参数 `fetch.query.id_list`。
+    统一转换为可被安全迭代的字符串列表。
+    支持 YAML 格式中书写的数组，或者由逗号隔开的字符串配置格式。
+    
+    例如将 "cond-mat/0207270v1, 2103.00001" 转化为对应的 List 格式。
     """
     if value is None:
         return []
@@ -172,6 +183,9 @@ def _normalize_id_list(value: Any) -> List[str]:
 
 
 def _scan_existing_inbox_for_arxiv_versions(content: str):
+    """
+    专门针对 Inbox 的版本扫描引擎：扫描 Inbox 中已存在记录的全部论文最高版本号以便触发更新逻辑。
+    """
     versions = {}
     if not content:
         return versions
@@ -190,6 +204,12 @@ def _scan_existing_inbox_for_arxiv_versions(content: str):
     return versions
 
 def fetch_papers():
+    """
+    负责核心抓取逻辑的主流程方法：
+      1. 加载配置并构筑目标请求链接与查询逻辑。
+      2. 具备容灾机制（退避重试），请求 arXiv 官方接口。
+      3. 清洗并组装论文的核心元数据返回。
+    """
     config = load_config(BASE_DIR)
 
     print(f"获取日期为 {datetime.date.today()}...")
@@ -367,6 +387,13 @@ def fetch_papers():
     return papers
 
 def update_inbox(papers):
+    """
+    负责对比数据然后落地更新 Inbox 的主要业务方法：
+      1. 获取当前系统内的去重大盘（Inbox 和 Papers List）。
+      2. 比对传入的新获取的论文列表，如果存在更高版本的则准备追加入系统消息。
+      3. 若配置允许版本更新取代，则直接取代旧链接并更新。
+      4. 以可配置的 Markdown 格式将全部未重复新论文写入 Inbox.md 的可调节占位符之下。
+    """
     config = load_config(BASE_DIR)
 
     if not papers:
