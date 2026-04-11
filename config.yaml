@@ -53,10 +53,24 @@ fetch:
     id_list: []
     # 关注的 arXiv 分区（示例：cs.AI / cs.CL / cs.CR ...）
     categories:
-      - "cs.AI"
+      - "cs.AI" # 人工智能
+      - "cs.CL" # 大语言模型/NLP
+      - "cs.LG" # 机器学习/聚类与联邦学习核心
+      - "cs.CV" # 计算机视觉/ViT/多模态
+      - "cs.MM" # 多媒体/多模态应用
+      - "cs.CR" # 安全与隐私/联邦学习隐私
+      - "cs.DC" # 分布式计算/算子与显存优化
     # 关键词过滤：指的是匹配标题/摘要内字段。
     keywords:
+      - "Multi-view"
+      - "Multi-modal"
+      - "Federated Learning"
+      - "Clustering"
       - "Agent"
+      - "LLM"
+      - "Transformer"
+      - "Parameter-efficient"
+      - "Molecular"
     # keyword_field：arXiv 支持的字段前缀，常用：all / ti / abs / au / co / jr / cat / rn
     keyword_field: "all"
     # 组合逻辑：当同时提供 categories 与 keywords 时，如何拼接 search_query。
