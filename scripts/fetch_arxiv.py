@@ -584,4 +584,14 @@ def update_inbox(papers):
 
 if __name__ == "__main__":
     papers = fetch_papers()
+
+    # AI filter (opt-in via config)
+    config = load_config(BASE_DIR)
+    from config_loader import get_config_value as _gcv
+    if _gcv(config, "ai_filter.enabled", False):
+        from ai_filter import score_papers, write_filtered_inbox
+        kept, filtered = score_papers(papers, config)
+        write_filtered_inbox(filtered, config)
+        papers = kept
+
     update_inbox(papers)

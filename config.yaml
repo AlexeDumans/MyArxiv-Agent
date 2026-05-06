@@ -179,6 +179,43 @@ features:
   # - replace：把 Inbox 中旧版本 abs 链接替换为新版本链接，并追加一条“版本更新”提示
   arxiv_version_update_behavior: "append_notice"
 
+# AI 智能评分过滤配置（可选插件，默认关闭）
+ai_filter:
+  # 是否启用 AI 评分过滤
+  enabled: false
+  # OpenAI 兼容 API 地址（Ollama / vLLM / OpenAI 等均可）
+  api_base: "http://localhost:11434/v1"
+  # API Key：以 $ 开头则从环境变量读取，如 "$OPENAI_API_KEY"
+  api_key: ""
+  # 模型名称
+  model: "qwen2.5:7b"
+  # 评分阈值：>= 此分数的论文才会进入 Inbox（0-10）
+  min_score: 6
+  # API 超时（秒）
+  timeout_seconds: 30
+  # 请求间延迟（秒），避免打爆本地 LLM
+  request_delay_seconds: 0.3
+  # 单次评分 max_tokens
+  max_tokens: 80
+  # 被过滤掉的论文写入此文件（备查，防止误杀）
+  filtered_inbox: "Inbox-filtered.md"
+  # 用自然语言描述你感兴趣的方向（供 LLM 评分参考）
+  interests: |
+    - 多模态大模型 (multimodal large models, vision-language models, cross-modal learning)
+    - 医学图像 AI (radiology, pathology, ophthalmology, MRI, CT, whole slide images, surgical)
+    - 多视图学习与融合 (multi-view learning, cross-view fusion)
+    - 基础模型与表示学习 (foundation models, representation learning)
+  # 用自然语言描述你不感兴趣的方向
+  not_interests: |
+    - 安全/密码/隐私/攻击 (security, cryptography, jailbreak, backdoor)
+    - 边缘部署/模型量化压缩 (edge deployment, quantization, model compression)
+    - 联邦学习 (federated learning)
+    - 纯 NLP 任务 (sentiment analysis, dependency parsing, conspiracy detection, polarization)
+    - 区块链/IoT
+    - 时序预测 (time series forecasting)
+    - 专利/法律 (patent analysis, legal reasoning)
+    - 代码生成/软件工程 (code generation, software engineering)
+
 # 归档配置
 archive:
   # 复选框符号配置

@@ -7,3 +7,4 @@ dist-ssr/
 *.local
 .npm/
 MyArxiv-Agent-token.txt
+config.yaml
