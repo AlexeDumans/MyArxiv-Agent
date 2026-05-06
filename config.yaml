@@ -63,7 +63,6 @@ fetch:
       - "Multi-view"
       - "Multi-modal"
       - "LLM"
-      - "Transformer"
     # keyword_field：arXiv 支持的字段前缀，常用：all / ti / abs / au / co / jr / cat / rn
     keyword_field: "all"
     # 组合逻辑：当同时提供 categories 与 keywords 时，如何拼接 search_query。
