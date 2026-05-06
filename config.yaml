@@ -59,12 +59,87 @@ fetch:
       - "cs.CV" # 计算机视觉/ViT/多模态
       - "cs.MM" # 多媒体/多模态应用
     # 关键词过滤：指的是匹配标题/摘要内字段。
+    # 现在使用 ti (标题) 级别匹配以提高精度，减少噪音。
     keywords:
-      - "Multi-view"
-      - "Multi-modal"
-      - "LLM"
+      # -- 多模态 / 跨模态 --
+      - "multimodal"
+      - "multi-modal"
+      - "cross-modal"
+      - "vision-language"
+      - "visual-language"
+      - "multi-view"
+      - "cross-view"
+      # -- 医学图像 --
+      - "medical image"
+      - "medical imaging"
+      - "radiology"
+      - "radiograph"
+      - "pathology"
+      - "histopathology"
+      - "histology"
+      - "ophthalmology"
+      - "fundus"
+      - "retinal"
+      - "endoscopic"
+      - "surgical"
+      - "whole slide image"
+      - "optical coherence tomography"
+      - "magnetic resonance"
+      - "CT scan"
+      - "X-ray"
+      - "ultrasound"
+      - "clinical image"
+      - "biomedical image"
+      # -- 基础模型 / 表示学习 --
+      - "foundation model"
+      - "large multimodal"
+      - "large multi-modal"
+      - "vision transformer"
+      - "representation learning"
     # keyword_field：arXiv 支持的字段前缀，常用：all / ti / abs / au / co / jr / cat / rn
-    keyword_field: "all"
+    keyword_field: "ti"
+    # 排除关键词：匹配标题/摘要中包含这些关键词的论文将被自动过滤。
+    # 用于排除明确不感兴趣的方向（安全、密码、边缘部署等）。
+    exclude_keywords:
+      # -- 安全 / 密码 --
+      - "security"
+      - "cryptography"
+      - "encryption"
+      - "privacy"
+      - "fuzzing"
+      - "jailbreak"
+      - "backdoor"
+      - "adversarial attack"
+      - "network intrusion"
+      - "blockchain"
+      - "zero-trust"
+      # -- 边缘 / IoT --
+      - "edge deployment"
+      - "edge device"
+      - "edge computing"
+      - "IoT"
+      - "quantization"
+      - "model compression"
+      # -- 联邦学习 --
+      - "federated learning"
+      # -- 纯 NLP 任务 (非多模态) --
+      - "conspiracy detection"
+      - "polarization detection"
+      - "dependency parsing"
+      - "semantic role labeling"
+      - "essay scoring"
+      - "essay grading"
+      # -- 不相关领域 --
+      - "patent"
+      - "legal reasoning"
+      - "legal adjudication"
+      - "operations research"
+      - "network procedure"
+      - "vulnerability"
+      # -- 纯时间序列预测 --
+      - "time series forecasting"
+    # exclude_keyword_field：排除关键词匹配的字段前缀
+    exclude_keyword_field: "all"
     # 组合逻辑：当同时提供 categories 与 keywords 时，如何拼接 search_query。
     # 其中 cat_or / kw_or 会被替换为各自的 OR 表达式。
     # Boolean 可选：AND / OR / ANDNOT。

@@ -259,8 +259,14 @@ def fetch_papers():
     combine_mode = get_config_value(config, "fetch.query.combine_mode", "(cat_or) AND (kw_or)")
     id_list = _normalize_id_list(get_config_value(config, "fetch.query.id_list", []))
     
+    exclude_keywords = get_config_value(config, "fetch.query.exclude_keywords", [])
+    exclude_keyword_field = get_config_value(config, "fetch.query.exclude_keyword_field", "all")
+
+    def _quote_phrase(term):
+        return f'"{term}"' if " " in str(term) else str(term)
+
     cat_query = " OR ".join([f"cat:{c}" for c in categories]) if categories else ""
-    kw_query = " OR ".join([f"{keyword_field}:{k}" for k in keywords]) if keywords else ""
+    kw_query = " OR ".join([f"{keyword_field}:{_quote_phrase(k)}" for k in keywords]) if keywords else ""
 
     if cat_query and kw_query:
         search_query = str(combine_mode).replace("cat_or", cat_query).replace("kw_or", kw_query)
@@ -270,6 +276,15 @@ def fetch_papers():
         search_query = kw_query
     else:
         search_query = "" if id_list else "all:agent"
+
+    if exclude_keywords:
+        exclude_query = " OR ".join(
+            [f"{exclude_keyword_field}:{_quote_phrase(k)}" for k in exclude_keywords]
+        )
+        if search_query:
+            search_query = f"({search_query}) ANDNOT ({exclude_query})"
+        else:
+            search_query = f"all:* ANDNOT ({exclude_query})"
     
     params = {
         'start': start,
@@ -384,6 +399,20 @@ def fetch_papers():
             print(f"Skipping entry due to error: {e}")
             continue
             
+    if exclude_keywords:
+        exclude_lower = [k.lower() for k in exclude_keywords]
+        filtered = []
+        excluded = 0
+        for p in papers:
+            text = (p["title"] + " " + p["summary"]).lower()
+            if any(kw in text for kw in exclude_lower):
+                excluded += 1
+                continue
+            filtered.append(p)
+        if excluded > 0:
+            print(f"客户端二次过滤：排除 {excluded} 篇命中排除词的论文")
+        return filtered
+
     return papers
 
 def update_inbox(papers):
