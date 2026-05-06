@@ -100,6 +100,7 @@ def load_config(base_dir: str) -> Dict[str, Any]:
     """
 
     config_path = os.path.join(base_dir, "config.yaml")
+    local_config_path = os.path.join(base_dir, "config.local.yaml")
 
     # 1. 读取基础的 YAML 配置文件
     file_config: Dict[str, Any] = {}
@@ -108,6 +109,13 @@ def load_config(base_dir: str) -> Dict[str, Any]:
             loaded = yaml.safe_load(f) or {}
             if isinstance(loaded, dict):
                 file_config = loaded
+
+    # 1.5 读取本地私密配置 (config.local.yaml)，深度合并覆盖主配置
+    if os.path.exists(local_config_path):
+        with open(local_config_path, "r", encoding="utf-8") as f:
+            local_loaded = yaml.safe_load(f) or {}
+            if isinstance(local_loaded, dict):
+                file_config = _deep_merge_dict(file_config, local_loaded)
 
     # 2. 从环境变量中读取具有特定前缀配置项并处理
     env_override: Dict[str, Any] = {}

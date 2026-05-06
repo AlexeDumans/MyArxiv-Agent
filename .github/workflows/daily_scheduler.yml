@@ -32,6 +32,8 @@ jobs:
       - name: Fetch and Update Inbox
         run: |
           uv run scripts/fetch_arxiv.py
+        env:
+          ARXIV_AGENT__ai_filter__api_key: ${{ secrets.AI_FILTER_API_KEY }}
 
       - name: Commit and Push changes
         run: |

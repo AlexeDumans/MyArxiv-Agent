@@ -1,0 +1,254 @@
+# MyArxiv-Agent的全局配置
+
+# 版本配置
+meta:
+  config_version: 1
+  owner: "neflibata-feng"
+
+# 文件路径配置（相对根目录）
+paths:
+  # 收件箱
+  inbox: "Inbox.md"
+  # 目录
+  contents: "Contents.md"
+  # 论文、笔记和下载区
+  papers_dir: "Papers"
+  notes_dir: "Notes"
+  pdfs_dir: "pdfs"
+
+# 抓取与处理配置
+fetch:
+  # 网络请求参数配置
+  arxiv_api:
+    base_url: "https://export.arxiv.org/api/query"
+    # sort_by 可选：relevance / lastUpdatedDate / submittedDate
+    sort_by: "submittedDate"
+    # sort_order 可选：ascending / descending
+    sort_order: "descending"
+    # start：分页起点，0-based，必须 >= 0
+    start: 0
+    # max_results：每次请求返回数量
+    # - 单次切片（slice）最大 2000
+    # - 单次请求超过 30000 会返回 HTTP 400（官方限制）
+    max_results: 150
+
+    http:
+      timeout_seconds: 60
+      retries: 5
+      backoff_seconds: 10
+      min_delay_seconds: 10
+      user_agent: "MyArxiv-Agent/1.0 (+https://github.com/)"
+
+  # 论文检索参数配置
+  query: 
+    # id_list：可选。精确指定 arXiv id。
+    # - 支持 YAML 列表（推荐）或逗号分隔字符串
+    # - 可包含版本号（vN）
+    # 方式：
+    # - 仅提供 id_list：按 id 精确拉取
+    # - 同时提供 id_list + 由 categories/keywords 构造的 search_query：过滤
+    # 示例：
+    # - ["cond-mat/0207270"] 表示取最新版本
+    # - ["cond-mat/0207270v1"] 表示取指定版本
+    id_list: []
+    # 关注的 arXiv 分区（示例：cs.AI / cs.CL / cs.CR ...）
+    categories:
+      - "cs.AI" # 人工智能
+      - "cs.CL" # 大语言模型/NLP
+      - "cs.LG" # 机器学习/聚类与联邦学习核心
+      - "cs.CV" # 计算机视觉/ViT/多模态
+      - "cs.MM" # 多媒体/多模态应用
+    # 关键词过滤：指的是匹配标题/摘要内字段。
+    # 现在使用 ti (标题) 级别匹配以提高精度，减少噪音。
+    keywords:
+      # -- 多模态 / 跨模态 --
+      - "multimodal"
+      - "multi-modal"
+      - "cross-modal"
+      - "vision-language"
+      - "visual-language"
+      - "multi-view"
+      - "cross-view"
+      # -- 医学图像 --
+      - "medical image"
+      - "medical imaging"
+      - "radiology"
+      - "radiograph"
+      - "pathology"
+      - "histopathology"
+      - "histology"
+      - "ophthalmology"
+      - "fundus"
+      - "retinal"
+      - "endoscopic"
+      - "surgical"
+      - "whole slide image"
+      - "optical coherence tomography"
+      - "magnetic resonance"
+      - "CT scan"
+      - "X-ray"
+      - "ultrasound"
+      - "clinical image"
+      - "biomedical image"
+      # -- 基础模型 / 表示学习 --
+      - "foundation model"
+      - "large multimodal"
+      - "large multi-modal"
+      - "vision transformer"
+      - "representation learning"
+    # keyword_field：arXiv 支持的字段前缀，常用：all / ti / abs / au / co / jr / cat / rn
+    keyword_field: "ti"
+    # 排除关键词：匹配标题/摘要中包含这些关键词的论文将被自动过滤。
+    # 用于排除明确不感兴趣的方向（安全、密码、边缘部署等）。
+    exclude_keywords:
+      # -- 安全 / 密码 --
+      - "security"
+      - "cryptography"
+      - "encryption"
+      - "privacy"
+      - "fuzzing"
+      - "jailbreak"
+      - "backdoor"
+      - "adversarial attack"
+      - "network intrusion"
+      - "blockchain"
+      - "zero-trust"
+      # -- 边缘 / IoT --
+      - "edge deployment"
+      - "edge device"
+      - "edge computing"
+      - "IoT"
+      - "quantization"
+      - "model compression"
+      # -- 联邦学习 --
+      - "federated learning"
+      # -- 纯 NLP 任务 (非多模态) --
+      - "conspiracy detection"
+      - "polarization detection"
+      - "dependency parsing"
+      - "semantic role labeling"
+      - "essay scoring"
+      - "essay grading"
+      # -- 不相关领域 --
+      - "patent"
+      - "legal reasoning"
+      - "legal adjudication"
+      - "operations research"
+      - "network procedure"
+      - "vulnerability"
+      # -- 纯时间序列预测 --
+      - "time series forecasting"
+    # exclude_keyword_field：排除关键词匹配的字段前缀
+    exclude_keyword_field: "all"
+    # 组合逻辑：当同时提供 categories 与 keywords 时，如何拼接 search_query。
+    # 其中 cat_or / kw_or 会被替换为各自的 OR 表达式。
+    # Boolean 可选：AND / OR / ANDNOT。
+    combine_mode: "(cat_or) AND (kw_or)"
+
+  # 去重策略配置
+  dedupe:
+    # - link：按链接完全匹配去重；不识别“同一 arXiv id 的版本更新”。
+    #         若链接中包含版本号（.../abs/<id>vN），则新版本通常会被当作“新链接”追加。
+    # - arxiv_id：按 arXiv base id 去重，可识别版本更新
+    strategy: "arxiv_id"
+  
+  # Inbox收件箱配置
+  formatting:
+    # 每篇论文摘要截断长度（字符数）
+    summary_max_chars: 500
+    # 作者显示：若作者数 > threshold，则显示 "第1作者 et al."。
+    author_et_al_threshold: 1
+    # 插入位置：插入到 Inbox 中第一个分隔线 "---" 之后
+    inbox_insert_after_delimiter: "---"
+    # 每日更新提示模板
+    daily_heading_template: "## {date} 更新 {count} 篇新论文"
+    # 每条论文条目格式（Markdown），可用变量：category, title, link, author, published, summary
+    item_template: "- [ ] **[{category}]** [{title}]({link}) *by {author} ({published})* - _{summary}_"
+    # 日期字段来源：可选：published / updated
+    # - published：arXiv <published>（版本 1 的提交/处理日期）
+    # - updated：arXiv <updated>（当前返回版本的提交/处理日期，若为 v1 则等于 published）
+    date_source: "published"  
+    # 版本更新提示模板，可用变量：date, arxiv_id, title, link, old_version, new_version
+    version_update_notice_template: "- [ ] (版本更新) {date}：{arxiv_id} 从 v{old_version} 更新到 v{new_version} - [{title}]({link})"
+
+# 版本更新处理配置（仅在 fetch.dedupe.strategy=arxiv_id 时生效）
+features:
+  # 可选：
+  # - ignore：不处理版本更新（按去重策略跳过）
+  # - append_notice：在 Inbox 追加一条“版本更新”提示
+  # - replace：把 Inbox 中旧版本 abs 链接替换为新版本链接，并追加一条“版本更新”提示
+  arxiv_version_update_behavior: "append_notice"
+
+# AI 智能评分过滤配置（可选插件，默认关闭）
+ai_filter:
+  # 是否启用 AI 评分过滤
+  enabled: false
+  # OpenAI 兼容 API 地址（Ollama / vLLM / OpenAI 等均可）
+  api_base: "http://localhost:11434/v1"
+  # api_key 敏感信息请写入 config.local.yaml（不会被 git 追踪）
+  # 格式: ai_filter.api_key: "your-key-here"
+  # 也支持环境变量 ARXIV_AGENT__ai_filter__api_key="your-key"
+  # 模型名称
+  model: "qwen2.5:7b"
+  # 评分阈值：>= 此分数的论文才会进入 Inbox（0-10）
+  min_score: 6
+  # API 超时（秒）
+  timeout_seconds: 30
+  # 请求间延迟（秒），避免打爆本地 LLM
+  request_delay_seconds: 0.3
+  # 单次评分 max_tokens
+  max_tokens: 80
+  # 被过滤掉的论文写入此文件（备查，防止误杀）
+  filtered_inbox: "Inbox-filtered.md"
+  # 用自然语言描述你感兴趣的方向（供 LLM 评分参考）
+  interests: |
+    - 多模态大模型 (multimodal large models, vision-language models, cross-modal learning)
+    - 医学图像 AI (radiology, pathology, ophthalmology, MRI, CT, whole slide images, surgical)
+    - 多视图学习与融合 (multi-view learning, cross-view fusion)
+    - 基础模型与表示学习 (foundation models, representation learning)
+  # 用自然语言描述你不感兴趣的方向
+  not_interests: |
+    - 安全/密码/隐私/攻击 (security, cryptography, jailbreak, backdoor)
+    - 边缘部署/模型量化压缩 (edge deployment, quantization, model compression)
+    - 联邦学习 (federated learning)
+    - 纯 NLP 任务 (sentiment analysis, dependency parsing, conspiracy detection, polarization)
+    - 区块链/IoT
+    - 时序预测 (time series forecasting)
+    - 专利/法律 (patent analysis, legal reasoning)
+    - 代码生成/软件工程 (code generation, software engineering)
+
+# 归档配置
+archive:
+  # 复选框符号配置
+  checkbox:
+    checked: "x"
+  # 归档解析配置，默认匹配：- [x] **[Category]** [Title](Link) ...
+  parsing:
+    entry_regex: "-\\s+\\[x\\]\\s+\\*\\*\\[(.*?)\\]\\*\\*\\s+\\[(.*?)\\]\\((.*?)\\).*"
+  # 笔记模板配置
+  notes:
+    template:
+      title_prefix: "# "
+      sections:
+        - "## 1. 摘要"
+        - "## 2. 关键成果"
+        - "## 3. 核心技术"
+        - "## 4. 实验及其结果"
+        - "## 5. 我的观点"
+  # 论文归档模板配置，每个分类在 Papers/<Category>/List.md 里追加的条目模板，变量：title, link, date, notes_rel_path
+  papers:
+    list_entry_template: "- [{title}]({link}) - *{date}* [Notes]({notes_rel_path})"
+  # 目录配置
+  contents:
+    title: "# 🗂️ Contents Index"
+    updated_prefix: "> 上次更新时间为 "
+    updated_time_format: "%Y-%m-%d %H:%M"
+  # 笔记链接配置
+  links:
+    # 在 Papers/List.md 中写入的 Notes 相对链接策略
+    # 当前仓库结构下：Papers/<cat>/List.md 到 Notes/<cat>/<title>.md
+    notes_rel_path_template: "../../Notes/{category}/{title}.md"
+
+
+
+
