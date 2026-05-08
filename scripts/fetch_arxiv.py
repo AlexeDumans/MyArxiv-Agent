@@ -182,6 +182,42 @@ def _normalize_id_list(value: Any) -> List[str]:
     return [s] if s else []
 
 
+def _normalize_text_list(value: Any) -> List[str]:
+    """把配置中的字符串或列表统一转成去空白的字符串列表。"""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return [str(x).strip() for x in value if str(x).strip()]
+    if isinstance(value, str):
+        parts = [p.strip() for p in value.split(",")]
+        return [p for p in parts if p]
+    s = str(value).strip()
+    return [s] if s else []
+
+
+def _quote_phrase(term: str) -> str:
+    """arXiv API 要求多词短语用双引号包裹。"""
+    return f'"{term}"' if " " in str(term) else str(term)
+
+
+def _describe_fetch_error(error: Exception) -> str:
+    """把 requests 异常转换成更容易定位的抓取错误说明。"""
+    if isinstance(error, requests.HTTPError) and error.response is not None:
+        response = error.response
+        status_code = response.status_code
+        retry_after = response.headers.get("Retry-After")
+        body = _strip_control_chars(response.text[:300]).replace("\n", " ").strip()
+        parts = [f"HTTP {status_code}"]
+        if status_code == 429:
+            parts.append("arXiv API 返回限流/拒绝请求，建议等待几分钟后重试")
+        if retry_after:
+            parts.append(f"Retry-After={retry_after}")
+        if body:
+            parts.append(f"响应片段: {body}")
+        return "; ".join(parts)
+    return str(error)
+
+
 def _scan_existing_inbox_for_arxiv_versions(content: str):
     """
     专门针对 Inbox 的版本扫描引擎：扫描 Inbox 中已存在记录的全部论文最高版本号以便触发更新逻辑。
@@ -253,17 +289,19 @@ def fetch_papers():
         "MyArxiv-Agent/1.0 (+https://github.com/)",
     )
 
-    categories = get_config_value(config, "fetch.query.categories", ["cs.AI"])
-    keywords = get_config_value(config, "fetch.query.keywords", ["Agent"])
+    categories = _normalize_text_list(
+        get_config_value(config, "fetch.query.categories", ["cs.AI"])
+    )
+    keywords = _normalize_text_list(
+        get_config_value(config, "fetch.query.keywords", ["Agent"])
+    )
     keyword_field = get_config_value(config, "fetch.query.keyword_field", "all")
     combine_mode = get_config_value(config, "fetch.query.combine_mode", "(cat_or) AND (kw_or)")
     id_list = _normalize_id_list(get_config_value(config, "fetch.query.id_list", []))
     
-    exclude_keywords = get_config_value(config, "fetch.query.exclude_keywords", [])
-    exclude_keyword_field = get_config_value(config, "fetch.query.exclude_keyword_field", "all")
-
-    def _quote_phrase(term):
-        return f'"{term}"' if " " in str(term) else str(term)
+    exclude_keywords = _normalize_text_list(
+        get_config_value(config, "fetch.query.exclude_keywords", [])
+    )
 
     cat_query = " OR ".join([f"cat:{c}" for c in categories]) if categories else ""
     kw_query = " OR ".join([f"{keyword_field}:{_quote_phrase(k)}" for k in keywords]) if keywords else ""
@@ -276,15 +314,6 @@ def fetch_papers():
         search_query = kw_query
     else:
         search_query = "" if id_list else "all:agent"
-
-    if exclude_keywords:
-        exclude_query = " OR ".join(
-            [f"{exclude_keyword_field}:{_quote_phrase(k)}" for k in exclude_keywords]
-        )
-        if search_query:
-            search_query = f"({search_query}) ANDNOT ({exclude_query})"
-        else:
-            search_query = f"all:* ANDNOT ({exclude_query})"
     
     params = {
         'start': start,
@@ -335,11 +364,11 @@ def fetch_papers():
             except Exception:
                 min_delay = 3.0
             sleep_seconds = max(sleep_seconds, min_delay)
-            print(f"获取数据错误(第{attempt+1}次): {e}; {sleep_seconds:.1f}s 后重试...")
+            print(f"获取数据错误(第{attempt+1}次): {_describe_fetch_error(e)}; {sleep_seconds:.1f}s 后重试...")
             time.sleep(sleep_seconds)
 
     if last_error is not None:
-        print(f"获取数据错误: {last_error}")
+        print(f"获取数据失败，不代表没有新论文: {_describe_fetch_error(last_error)}")
         return []
 
     papers = []

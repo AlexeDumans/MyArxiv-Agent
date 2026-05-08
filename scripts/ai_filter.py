@@ -70,7 +70,7 @@ def score_papers(papers, config):
     api_key = _resolve_api_key(str(get_config_value(config, "ai_filter.api_key", "")))
     model = str(get_config_value(config, "ai_filter.model", "qwen2.5:7b"))
     min_score = int(get_config_value(config, "ai_filter.min_score", 6))
-    max_tokens = int(get_config_value(config, "ai_filter.max_tokens", 80))
+    max_tokens = int(get_config_value(config, "ai_filter.max_tokens", 1024))
     timeout = int(get_config_value(config, "ai_filter.timeout_seconds", 30))
     delay = float(get_config_value(config, "ai_filter.request_delay_seconds", 0.3))
 
@@ -104,7 +104,9 @@ def score_papers(papers, config):
                 timeout=timeout,
             )
             resp.raise_for_status()
-            content = resp.json()["choices"][0]["message"]["content"]
+            message = resp.json()["choices"][0]["message"]
+            # 推理模型 (DeepSeek V4 等) 可能 content 为空而实际输出在 reasoning_content
+            content = message.get("content", "") or message.get("reasoning_content", "")
             score, reason = _parse_score(content)
 
         except Exception as e:
@@ -153,8 +155,12 @@ def write_filtered_inbox(filtered, config):
         )
         lines.append("---\n\n")
 
-    with open(file_path, "r", encoding="utf-8") as f:
-        existing = f.read()
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            existing = f.read()
+    else:
+        existing = "".join(lines)
+        lines = []
 
     lines.append(f"## {today_str} 过滤 {len(filtered)} 篇\n")
 
