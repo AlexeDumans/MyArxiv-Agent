@@ -10,3 +10,6 @@ MyArxiv-Agent-token.txt
 config.local.yaml
 __pycache__/
 *.pyc
+AGENT.md
+Inbox-*.md
+
