@@ -11,10 +11,12 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import html
+import json
 import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -44,6 +46,61 @@ COMING_SOON_PHRASES = (
     "will be available soon",
     "coming soon",
 )
+
+GITHUB_CODE_HINTS = {
+    "code",
+    "codes",
+    "config",
+    "configs",
+    "dataset",
+    "datasets",
+    "environment.yml",
+    "eval",
+    "evaluation",
+    "experiments",
+    "inference",
+    "model",
+    "models",
+    "notebook",
+    "notebooks",
+    "package.json",
+    "pyproject.toml",
+    "requirements.txt",
+    "script",
+    "scripts",
+    "setup.py",
+    "src",
+    "test",
+    "tests",
+    "train",
+    "training",
+}
+GITHUB_CODE_EXTENSIONS = (".ipynb", ".py", ".sh")
+GITHUB_PLACEHOLDER_NAMES = {
+    ".github",
+    ".gitignore",
+    ".gitattributes",
+    "asset",
+    "assets",
+    "cname",
+    "demo",
+    "doc",
+    "docs",
+    "figure",
+    "figures",
+    "image",
+    "images",
+    "img",
+    "index.html",
+    "license",
+    "license-apache",
+    "license.md",
+    "notice",
+    "readme",
+    "readme.md",
+    "static",
+    "website",
+}
 
 
 @dataclass
@@ -75,11 +132,19 @@ class LinkEvidence:
 
 
 @dataclass
+class RepoVerification:
+    url: str
+    status: str
+    detail: str = ""
+
+
+@dataclass
 class CodeCheck:
     paper: InboxPaper
     metadata: Optional[ArxivMetadata]
     status: str
     evidence: List[LinkEvidence] = field(default_factory=list)
+    repo_checks: List[RepoVerification] = field(default_factory=list)
     coming_soon: bool = False
     error: str = ""
 
@@ -88,6 +153,19 @@ def parse_date(value: Optional[str]) -> Optional[dt.date]:
     if not value:
         return None
     return dt.date.fromisoformat(value)
+
+
+def latest_update_date(inbox_path: str) -> Optional[dt.date]:
+    latest: Optional[dt.date] = None
+    with open(inbox_path, "r", encoding="utf-8") as f:
+        for line in f:
+            heading = HEADING_RE.match(line)
+            if not heading:
+                continue
+            current = dt.date.fromisoformat(heading.group("date"))
+            if latest is None or current > latest:
+                latest = current
+    return latest
 
 
 def in_date_range(value: str, start: Optional[dt.date], end: Optional[dt.date]) -> bool:
@@ -341,6 +419,121 @@ def render_links(items: Iterable[LinkEvidence], kinds: Optional[set] = None) -> 
     return ", ".join(f"[{item.kind}:{item.source}]({item.url})" for item in selected)
 
 
+def github_repo_key(url: str) -> Optional[Tuple[str, str]]:
+    parsed = urllib.parse.urlparse(url)
+    host = parsed.netloc.lower()
+    if host.startswith("www."):
+        host = host[4:]
+    if host != "github.com":
+        return None
+
+    parts = [p for p in parsed.path.strip("/").split("/") if p]
+    if len(parts) < 2:
+        return None
+
+    repo = parts[1]
+    if repo.endswith(".git"):
+        repo = repo[:-4]
+    return parts[0], repo
+
+
+def classify_github_contents(items: object) -> Tuple[str, str]:
+    if not isinstance(items, list) or not items:
+        return "empty", ""
+
+    names = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name", "")).strip()
+        if name:
+            names.append(name)
+
+    lowered = {name.lower() for name in names}
+    if any(name in GITHUB_CODE_HINTS for name in lowered):
+        return "ok", ", ".join(names[:8])
+    if any(name.endswith(GITHUB_CODE_EXTENSIONS) for name in lowered):
+        return "ok", ", ".join(names[:8])
+
+    non_placeholder = [
+        name
+        for name in lowered
+        if name not in GITHUB_PLACEHOLDER_NAMES
+        and not name.endswith((".png", ".jpg", ".jpeg", ".gif", ".svg", ".pdf"))
+    ]
+    if not non_placeholder:
+        return "placeholder", ", ".join(names[:8])
+
+    return "unclear", ", ".join(names[:8])
+
+
+def verify_github_repo(
+    owner: str,
+    repo: str,
+    timeout: int,
+    user_agent: str,
+    token: str,
+) -> RepoVerification:
+    url = f"https://github.com/{owner}/{repo}"
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/contents"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": user_agent,
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    request = urllib.request.Request(api_url, headers=headers)
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        return RepoVerification(url=url, status=f"http_{exc.code}", detail=exc.reason)
+    except Exception as exc:
+        return RepoVerification(url=url, status="error", detail=str(exc))
+
+    status, detail = classify_github_contents(payload)
+    return RepoVerification(url=url, status=status, detail=detail)
+
+
+def attach_github_repo_checks(
+    checks: Sequence[CodeCheck],
+    timeout: int,
+    user_agent: str,
+    token: str,
+) -> None:
+    cache: Dict[Tuple[str, str], RepoVerification] = {}
+
+    for check in checks:
+        repo_checks: List[RepoVerification] = []
+        for evidence in unique_links(check.evidence, {"code"}):
+            key = github_repo_key(evidence.url)
+            if not key:
+                continue
+            if key not in cache:
+                cache[key] = verify_github_repo(
+                    owner=key[0],
+                    repo=key[1],
+                    timeout=timeout,
+                    user_agent=user_agent,
+                    token=token,
+                )
+            repo_checks.append(cache[key])
+        check.repo_checks = repo_checks
+
+
+def render_repo_checks(items: Iterable[RepoVerification]) -> str:
+    selected = list(items)
+    if not selected:
+        return "-"
+    parts = []
+    for item in selected:
+        detail = f" ({item.detail})" if item.detail else ""
+        parts.append(f"[{item.status}]({item.url}){detail}")
+    return ", ".join(parts)
+
+
 def render_markdown(checks: Sequence[CodeCheck], source_name: str, date_from: str, date_to: str) -> str:
     grouped: Dict[str, List[CodeCheck]] = {}
     for check in checks:
@@ -370,6 +563,16 @@ def render_markdown(checks: Sequence[CodeCheck], source_name: str, date_from: st
 
     for status, label in order:
         lines.append(f"- {label}: {len(grouped.get(status, []))}")
+
+    repo_status_counts: Dict[str, int] = {}
+    for check in checks:
+        for repo_check in check.repo_checks:
+            repo_status_counts[repo_check.status] = repo_status_counts.get(repo_check.status, 0) + 1
+    if repo_status_counts:
+        lines.append("")
+        lines.append("GitHub repository verification:")
+        for status in sorted(repo_status_counts):
+            lines.append(f"- {status}: {repo_status_counts[status]}")
     lines.append("")
 
     for status, label in order:
@@ -388,6 +591,8 @@ def render_markdown(checks: Sequence[CodeCheck], source_name: str, date_from: st
                 lines.append(f"  - error: `{check.error}`")
             else:
                 lines.append(f"  - code: {render_links(check.evidence, {'code'})}")
+                if check.repo_checks:
+                    lines.append(f"  - repo check: {render_repo_checks(check.repo_checks)}")
                 lines.append(f"  - project/data/other: {render_links(check.evidence, {'project_page', 'dataset', 'other'})}")
                 if check.coming_soon:
                     lines.append("  - note: contains a coming-soon style claim")
@@ -418,9 +623,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Only scan unchecked Inbox entries.",
     )
     parser.add_argument(
+        "--latest-update",
+        action="store_true",
+        help="Only scan the latest dated update block in the input file. Ignored when an explicit date range is provided.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Only parse Inbox entries and print arXiv IDs; do not query arXiv.",
+    )
+    parser.add_argument(
+        "--verify-github-repos",
+        action="store_true",
+        help="Lightly verify direct GitHub repositories by checking their root contents.",
+    )
+    parser.add_argument(
+        "--github-token",
+        default=os.environ.get("GITHUB_TOKEN", ""),
+        help="Optional GitHub token for repository verification. Defaults to GITHUB_TOKEN.",
     )
     parser.add_argument(
         "--batch-size",
@@ -460,6 +680,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     date_from = parse_date(args.date_from)
     date_to = parse_date(args.date_to)
     inbox_path = os.path.abspath(args.input)
+    date_from_label = args.date_from or ""
+    date_to_label = args.date_to or ""
+
+    if args.latest_update and not date_from and not date_to:
+        latest = latest_update_date(inbox_path)
+        if latest:
+            date_from = latest
+            date_to = latest
+            date_from_label = latest.isoformat()
+            date_to_label = latest.isoformat()
 
     papers = parse_inbox(inbox_path, date_from, date_to, args.unchecked_only)
     if args.dry_run:
@@ -482,12 +712,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         check_paper(paper, metadata.get(paper.arxiv_id), errors.get(paper.arxiv_id, ""))
         for paper in papers
     ]
+    if args.verify_github_repos:
+        attach_github_repo_checks(
+            checks=checks,
+            timeout=args.timeout,
+            user_agent=args.user_agent,
+            token=args.github_token,
+        )
 
     report = render_markdown(
         checks=checks,
         source_name=os.path.relpath(inbox_path, BASE_DIR),
-        date_from=args.date_from or "",
-        date_to=args.date_to or "",
+        date_from=date_from_label,
+        date_to=date_to_label,
     )
 
     if args.output:

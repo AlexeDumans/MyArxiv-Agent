@@ -1,0 +1,84 @@
+name: Inbox Code Evidence Check
+
+on:
+  workflow_run:
+    workflows:
+      - Daily Arxiv Fetcher
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      date_from:
+        description: "Start update date, inclusive. Leave empty to scan the latest update."
+        required: false
+        type: string
+      date_to:
+        description: "End update date, inclusive. Leave empty to scan the latest update."
+        required: false
+        type: string
+      unchecked_only:
+        description: "Only scan unchecked Inbox entries."
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  check-code-evidence:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: ".python-version"
+
+      - name: Check code evidence
+        env:
+          DATE_FROM: ${{ github.event.inputs.date_from }}
+          DATE_TO: ${{ github.event.inputs.date_to }}
+          UNCHECKED_ONLY: ${{ github.event.inputs.unchecked_only || 'false' }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -eo pipefail
+          mkdir -p reports
+
+          args=(
+            --input Inbox.md
+            --output reports/code-repo-check.md
+            --verify-github-repos
+          )
+
+          if [ -n "${DATE_FROM:-}" ]; then
+            args+=(--date-from "$DATE_FROM")
+          fi
+          if [ -n "${DATE_TO:-}" ]; then
+            args+=(--date-to "$DATE_TO")
+          fi
+          if [ "${UNCHECKED_ONLY:-false}" = "true" ]; then
+            args+=(--unchecked-only)
+          fi
+          if [ -z "${DATE_FROM:-}" ] && [ -z "${DATE_TO:-}" ]; then
+            args+=(--latest-update)
+          fi
+
+          python scripts/check_code_repos.py "${args[@]}"
+
+      - name: Write step summary
+        run: |
+          {
+            echo "## Inbox Code Evidence Check"
+            echo
+            sed -n '1,220p' reports/code-repo-check.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: inbox-code-evidence-report
+          path: reports/code-repo-check.md
