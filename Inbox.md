@@ -9,6 +9,10 @@
 
 ---
 
+## 2026-06-22 更新 1 篇新论文
+- [ ] **[cs.CV]** [See-and-Reach: Precise Vision-Language Navigation for UAVs within the Field of View](https://arxiv.org/abs/2606.20045v1) *by Fanfu Xue et al. (2026-06-18)* - _UAV Vision-Language Navigation (UAV-VLN) is typically formulated as a holistic search-and-reach problem, where long-range target discovery and final target approach are optimized and evaluated jointly. This formulation makes it difficult to assess a critical capability of aerial embodied agents, namely whether a UAV can accurately ground a visible target and translate vision-language evidence into precise 3D motion once the target enters its field of view. To address this limitation, we introduc..._
+
+
 ## 2026-06-21 更新 2 篇新论文
 - [ ] **[eess.SP]** [Evaluation of EEG Foundation Models for Event-Based Burst-Suppression Detection in ICU](https://arxiv.org/abs/2606.20074v1) *by Elisa Vasta et al. (2026-06-18)* - _Burst suppression (BS) is a clinically relevant electroencephalographic (EEG) pattern used to monitor sedation depth and brain activity in critically ill patients, particularly during induced coma in Intensive Care Units (ICUs). Automatic burst detection remains challenging because BS patterns vary substantially between patients and annotated datasets are scarce. Recently, EEG Foundation Models (FMs) have shown promise across several downstream EEG applications, but their usefulness for BS detec..._
 - [ ] **[cs.CV]** [FUSE: Frequency-domain Unification and Spectral Energy Alignment for Multi-modal Object Re-Identification](https://arxiv.org/abs/2606.20044v1) *by Xuanhao Qi et al. (2026-06-18)* - _Despite significant progress in multi-modal Re-Identification (ReID), existing methods tend to emphasize low-frequency cues. Consequently, they focus on attributes such as color, illumination, and coarse appearance, while overlooking mid and high-frequency structures that encode geometric, textural, and identity-discriminative details. This imbalance leads to incomplete spectral representations and unstable cross-modal alignment. To overcome these limitations, we introduce FUSE, a frequency-doma..._
