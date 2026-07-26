@@ -9,6 +9,10 @@
 
 ---
 
+## 2026-07-26 更新 1 篇新论文
+- [ ] **[eess.IV]** [BLUE: Semantics-Preserving Video Compression for Efficient Vision-Language Surveillance Analytics](https://arxiv.org/abs/2607.19515v1) *by Shubham Baid et al. (2026-07-21)* - _Continuous surveillance video creates a growing storage, transmission, and inference burden for enterprise video analytics systems. While modern codecs such as H.265 reduce bitrate for human-viewable video, aggressive compression can degrade downstream computer-vision performance and does not necessarily reduce the number of vision-language model (VLM) inference calls required for semantic video understanding. This paper evaluates BLUE, a fixed-camera surveillance compression approach that suppr..._
+
+
 ## 2026-07-25 更新 7 篇新论文
 - [ ] **[cs.AI]** [Agent-Guided Relational Concept Discovery: Toward Interpretable Surgical Margin Assessment](https://arxiv.org/abs/2607.21437v1) *by Nooshin Maghsoodi et al. (2026-07-23)* - _Deep learning models can effectively use Rapid Evaporative Ionization Mass Spectrometry (REIMS) data for surgical margin assessment. However, their clinical adoption remains challenging due to limited generalization to operating room conditions. This difficulty arises because models are typically trained on labeled spectra collected from resected tissue samples, while they must operate on noisy, unlabeled data acquired directly during surgery. In addition, the black-box nature of deep learning m..._
 - [ ] **[cs.LG]** [Adaptive Confidence-weighted Expansion for Trustworthy Multi-Omics Multimodal Fusion](https://arxiv.org/abs/2607.20742v1) *by Mohammad Raahemi et al. (2026-07-22)* - _Multimodal learning is a robust approach to improve predictive performance in applications such as medical prognosis. However, the clinical applicability of models that use multimodal learning is hampered by their poor performance under noisy or uninformative data streams. Present fusion approaches often lack robust mechanisms for the dynamic assessment of data quality and for the provision of a trustable confidence score on the final prediction. This dissuades their deployment in safety-critica..._
