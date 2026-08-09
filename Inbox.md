@@ -9,6 +9,11 @@
 
 ---
 
+## 2026-08-09 更新 2 篇新论文
+- [ ] (版本更新) 2026-08-09：2608.05122 从 v1 更新到 v2 - [IRIS: A Visual Cortex-Inspired Framework for Analyzing Orientation Selectivity in Vision Transformers](https://arxiv.org/abs/2608.05122v2)
+- [ ] **[cs.RO]** [Visual Grounding in Zero-Shot Vision-Language Control](https://arxiv.org/abs/2608.06154v1) *by J. de Curtò et al. (2026-08-06)* - _Vision-language models (VLMs) are increasingly used as zero-shot controllers, but successful trajectories do not necessarily show that decisions are grounded in visual input: simulator dynamics and conservative action priors can produce favourable scores without meaningful perception. We investigate this with an input-ablation battery: blind-image controls, repeated identical inputs, lane-axis reflection, non-visual baselines, and pipeline-integrity checks. Across nine direct-action models, six ..._
+
+
 ## 2026-08-08 更新 6 篇新论文
 - [ ] **[cs.MM]** [M$^3$Prune: Hierarchical Collaborative Pruning for Efficient Multi-Modal Multi-Agent Retrieval-Augmented Generation](https://arxiv.org/abs/2608.05967v1) *by Taolin Zhang et al. (2026-08-06)* - _Recent advances in multi-modal retrieval-augmented generation (mRAG), which augments multi-modal large language models (MLLMs) with external knowledge, have shown that collective intelligence from multiple agents can outperform a single model through effective communication. Despite their strong performance, existing multi-agent systems incur substantial token overhead and computational cost, posing challenges for large-scale deployment. To address these issues, we propose a Multi-Modal Multi-ag..._
 - [ ] **[cs.AI]** [Seeing Is Not Deciding: Can Multimodal LLMs Act as Effective CEOs?](https://arxiv.org/abs/2608.05864v1) *by Yuyang Dai et al. (2026-08-06)* - _Large language models are increasingly applied as autonomous decision-making agents. However, in executive business decisions, existing benchmarks are limited to textonly settings. This makes it unclear whether models can perceive visual business evidence and effectively integrate it to improve decision quality. We introduce C-SUITEBENCH, a controlled multimodal benchmark that includes five decision tasks under paired text-only and multimodal conditions across 50 scenarios. We place nine frontie..._
