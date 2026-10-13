@@ -9,6 +9,12 @@
 
 ---
 
+## 2026-10-13 更新 3 篇新论文
+- [ ] **[cs.CV]** [Shortcut Learning in Geospatial Foundation Model Embeddings for Cross-Disaster Damage Assessment](https://arxiv.org/abs/2610.13766v1) *by Ali Shibli et al. (2026-10-09)* - _Geospatial foundation models can support disaster damage assessment, but high accuracy on familiar disasters may hide shortcut learning: prediction from event or scene characteristics rather than evidence that transfers to a new disaster. We study embeddings from TerraMind, Prithvi-EO-2.0, DOFA, and DINOv3 on the multi-disaster datasets xView2 and BRIGHT. Holding out an entire disaster, instead of randomly splitting image tiles, reduces mean balanced accuracy from 0.807 to 0.638 on xView2 and fr..._
+- [ ] **[cs.RO]** [Dual-Stream Memory for Vision-Language-Action Policies](https://arxiv.org/abs/2610.13262v1) *by Yang Wang et al. (2026-10-09)* - _Memory-dependent manipulation requires a policy to track execution state and recover visual evidence that is no longer observable. We propose dual-stream memory for vision-language-action policies, assigning these requirements to complementary representations. A task-agnostic Gated DeltaNet compresses history into one temporal token, supervised by progress prediction and action-conditioned feature reconstruction. A task-conditioned retriever retains frames above a fixed relevance threshold; line..._
+- [ ] **[cs.RO]** [WARP-VLA: Wrist-Camera Adaptation for View-Robust Policy Execution in Vision-Language-Action Models](https://arxiv.org/abs/2610.11508v1) *by Junmyeong Lee et al. (2026-10-08)* - _Despite recent advances in Vision-Language-Action models (VLAs) for robotic manipulation, their performance remains sensitive to changes in camera configuration. The problem becomes more evident in cross-setup deployment, as reproducing the exact camera pose used for training is nearly impossible. Unlike fixed external views, wrist views are more challenging because the camera moves with the robot, causing even small mounting variations to alter fine-grained geometric cues. To address this, we p..._
+
+
 ## 2026-10-12 更新 23 篇新论文
 - [ ] (版本更新) 2026-10-12：2610.11948 从 v1 更新到 v2 - [When History Helps and Hurts: Selective History Use across Multimodal Turns](https://arxiv.org/abs/2610.11948v2)
 - [ ] (版本更新) 2026-10-12：2610.11205 从 v1 更新到 v2 - [Dissecting Representation Structure in Vision Transformers: A Rigorous Architectural Study](https://arxiv.org/abs/2610.11205v2)
