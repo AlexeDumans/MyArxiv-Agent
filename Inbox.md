@@ -9,6 +9,10 @@
 
 ---
 
+## 2026-10-18 更新 1 篇新论文
+- [ ] **[cs.CV]** [Probing Negation Understanding in Vision-Language Models With Object Attention](https://arxiv.org/abs/2610.20852v1) *by Beth Pearson et al. (2026-10-14)* - _Negation is a fundamental aspect of language understanding and it is important vision-language models (VLMs) are able to process it effectively. We investigate how VLMs process negation by analysing attention patterns of different models. We draw comparisons between human gaze and attention in models when processing affirmative vs negated statements. We compare object level model attention to human eye-fixations in both binary and multary settings, evaluating with both synthetic and realistic da..._
+
+
 ## 2026-10-17 更新 4 篇新论文
 - [ ] **[cs.CV]** [MMSearch-OPD: Easy Made Hard, Hard Made Learnable for Long-Horizon Multimodal Search Agents](https://arxiv.org/abs/2610.22240v1) *by Huanyao Zhang et al. (2026-10-15)* - _Multimodal deep search is moving from short queries to long-horizon investigations that continually acquire evidence. However, training such agents remains constrained by limited challenging training questions and insufficient process feedback.  We introduce MMSearch-OPD, combining controllable data refinement with joint reinforcement learning (RL) and on-policy distillation (OPD). Our Refine pipeline performs targeted expansion of reasoning chains derived from existing simple multimodal questio..._
 - [ ] **[cs.CV]** [Retrofitting Recurrent Vision-Language Models from Pretrained Backbones](https://arxiv.org/abs/2610.22075v1) *by Madhav Iyengar et al. (2026-10-15)* - _Recent work shows that depth recurrence can be retrofitted into pretrained language models. In this work, we adapt this paradigm for visual understanding, using depth recurrence to reduce the parameter footprint of a pretrained vision-language model (VLM). To this end, we prune layers from the language backbone of the VLM and loop over a subset of the remaining layers. At each step of the loop, a linear adapter merges the block's output with the token representations from the preceding layers an..._
