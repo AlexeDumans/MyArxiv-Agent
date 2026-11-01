@@ -28,7 +28,7 @@ permissions:
 jobs:
   check-code-evidence:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # Python 3.9 has no Ubuntu 26.04 build.
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
