@@ -9,6 +9,10 @@
 
 ---
 
+## 2026-11-15 更新 1 篇新论文
+- [ ] **[cs.CV]** [Objects as Addresses: Instance Binding in Vision Transformer Attention](https://arxiv.org/abs/2611.17240v1) *by Khalil Sabri et al. (2026-11-12)* - _Humans naturally parse visual scenes into coherent individual objects rather than scattered features, a capability cognitive science calls object binding. While recent work shows that pretrained Vision Transformers (ViTs) intrinsically acquire this ability, how native self-attention computations mechanistically keep object instances separate remains unresolved. By studying this across eight pretrained ViTs, we found that instance separation is expressed more strongly in attention routing than in..._
+
+
 ## 2026-11-14 更新 9 篇新论文
 - [ ] **[cs.CV]** [Kosmo-GFM: A Production-Ready Geometry Foundation Model](https://arxiv.org/abs/2611.16840v1) *by Sheng Tang et al. (2026-11-12)* - _We present Kosmo-GFM, a scene reconstruction system that integrates a geometry foundation model (GFM), a pose optimization engine (PoseEngine), and reconstruction-derived supervision from KosmoWorld. GFM predicts camera parameters, depth, cross-view correspondences, and dynamic 3D points from images and videos. PoseEngine combines these predictions with geometric optimization to recover scene-level camera poses and geometry for downstream 3D and 4D Gaussian Splatting. KosmoWorld generates images..._
 - [ ] **[cs.SD]** [MusicRWKV: A Multimodal RWKV Framework for Music Representation Learning](https://arxiv.org/abs/2611.16718v1) *by Terry Tan (2026-11-12)* - _Recent music foundation models have achieved remarkable progress in music representation learning, yet most existing approaches rely on Transformer architectures whose quadratic attention complexity introduces substantial computational and memory overhead when modeling long-duration music recordings. In this work, we propose MusicRWKV, a multimodal music representation learning framework built upon the RWKV architecture. MusicRWKV jointly models waveform, spectrogram, and metadata information wi..._
