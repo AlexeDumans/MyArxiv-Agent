@@ -9,6 +9,12 @@
 
 ---
 
+## 2026-11-21 更新 3 篇新论文
+- [ ] (版本更新) 2026-11-21：2611.23615 从 v1 更新到 v2 - [Weight Space Programming for Vision Language Model Repair](https://arxiv.org/abs/2611.23615v2)
+- [ ] **[cs.AI]** [MS-Point: Multi-Modal Hierarchical Spectral Learning for Point Cloud Understanding](https://arxiv.org/abs/2611.25282v1) *by Hai-tao Yu et al. (2026-11-18)* - _Point-image alignment learns useful object representations, but different local feature patterns can produce the same pooled descriptor and receive the same alignment signal. We introduce MS-Point, a cross-modal pretraining framework that directly supervises intermediate point features and their neighborhood responses. At selected encoder stages, we compute neighborhood averages and residuals before pooling and align their branch descriptors with image features. Branch-level objectives align eac..._
+- [ ] **[cs.RO]** [$Z$-sight: Unifying Vision-Language-Action and Latent World Modeling](https://arxiv.org/abs/2611.24940v1) *by Junjie Ye et al. (2026-11-18)* - _We introduce $Z$-sight, a unified robot foundation model that couples vision-language-action (VLA) and generative latent world modeling. Video-based world action models (WAMs) show the value of joint future-and-action generation for control, yet inherit the heavy cost of video generators. Recent latent-space policies avoid pixel generation, yet typically align intermediate features or rely on frozen target encoders, decoupling future prediction from the VLM's native feature space. $Z$-sight inst..._
+
+
 ## 2026-11-20 更新 29 篇新论文
 - [ ] (版本更新) 2026-11-20：2611.23010 从 v1 更新到 v2 - [PhysScope: Agentic Multimodal Physics Reasoning with Grounded Visual Memory](https://arxiv.org/abs/2611.23010v2)
 - [ ] **[cs.AI]** [Probing the "Conscious" Mind: Selective Access and Global Workspace in Vision-Language Models](https://arxiv.org/abs/2611.26590v1) *by Jiahao Huang et al. (2026-11-19)* - _Vision-language models (VLMs) integrate visual and textual information, but their outputs do not reveal internal concept representations. Global workspace theory (GWT) proposes that information is selected from parallel brain processes, integrated in a shared workspace, and made available to specialised processes. We introduce the Multimodal Concept Lens (MC-Lens), a multimodal Jacobian lens, to study these functions in VLM concept processing. Its vision encoder and language decoder lenses map i..._
