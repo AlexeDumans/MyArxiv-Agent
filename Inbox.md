@@ -9,6 +9,11 @@
 
 ---
 
+## 2026-11-22 更新 2 篇新论文
+- [ ] **[cs.CV]** [Fold the Loop: Decoding-Time KV Memory for Looped Vision-Language Models](https://arxiv.org/abs/2611.25369v1) *by Kun Zhou et al. (2026-11-19)* - _Looped vision-language models (VLMs) deepen visual reasoning by repeatedly applying weight-tied modules. However, their decoding memory grows with recurrent depth and limits the image size and batch size that fit in a fixed memory budget. Each recurrent step produces its own key-value (KV) states, so the cache holds several copies of the same image. We find that, after an exact prefill, earlier steps still need access to visual information but can reuse the final visual KV within the same module..._
+- [ ] **[cs.CV]** [RoughCut-Bench: A Benchmark for Automatic Video Rough-Cut with Large Vision-Language Models](https://arxiv.org/abs/2611.24098v1) *by Ruisi Zhao et al. (2026-11-18)* - _Video rough-cut is a core stage in media production workflows, organizing raw media materials into an initial video cut. Despite recent advances in large vision-language models (LVLMs) for video-related tasks, automatic rough-cut remains underexplored, without a comprehensive benchmark for evaluation or mature workflows for producing executable cut plans. To address the evaluation gap, we introduce RoughCut-Bench, which covers two practical settings: (1) a visually driven setting over video case..._
+
+
 ## 2026-11-21 更新 3 篇新论文
 - [ ] (版本更新) 2026-11-21：2611.23615 从 v1 更新到 v2 - [Weight Space Programming for Vision Language Model Repair](https://arxiv.org/abs/2611.23615v2)
 - [ ] **[cs.AI]** [MS-Point: Multi-Modal Hierarchical Spectral Learning for Point Cloud Understanding](https://arxiv.org/abs/2611.25282v1) *by Hai-tao Yu et al. (2026-11-18)* - _Point-image alignment learns useful object representations, but different local feature patterns can produce the same pooled descriptor and receive the same alignment signal. We introduce MS-Point, a cross-modal pretraining framework that directly supervises intermediate point features and their neighborhood responses. At selected encoder stages, we compute neighborhood averages and residuals before pooling and align their branch descriptors with image features. Branch-level objectives align eac..._
