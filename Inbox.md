@@ -9,6 +9,10 @@
 
 ---
 
+## 2026-11-27 更新 1 篇新论文
+- [ ] **[cs.CV]** [From Diagnosing Alignment to Joint Supervision in Multimodal Draft Training](https://arxiv.org/abs/2611.34091v1) *by Haozhe Du et al. (2026-11-25)* - _Multimodal drafts learn from multimodal (MM) and text-only (TXT) supervision, yet their effects on alignment and how to combine them remain unclear. We diagnose draft-target alignment through paired predictions with and without visual input, decomposing distributional error into text-conditioned and visual-response components. Drafts with similar text-conditioned alignment can still differ markedly in visual-response risk and acceptance. Controlled continuation training shows that high-risk grou..._
+
+
 ## 2026-11-26 更新 40 篇新论文
 - [ ] (版本更新) 2026-11-26：2611.32993 从 v1 更新到 v2 - [Decision-Native Multimodal Clinical Modeling via Anatomical Grounding and Confidence Calibration](https://arxiv.org/abs/2611.32993v2)
 - [ ] (版本更新) 2026-11-26：2611.32316 从 v1 更新到 v2 - [ASTERISM: Do Multimodal LLMs Actually Look at All the Images?](https://arxiv.org/abs/2611.32316v2)
